@@ -8,6 +8,5 @@ class TestController
 {
     public function __construct(private string $test)
     {
-
     }
 }
