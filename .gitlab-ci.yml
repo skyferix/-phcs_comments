@@ -1,0 +1,42 @@
+variables:
+    PHPCS_REPORT_JSON_PATH: ./phpcs_report.json
+    PARSED_COMMENTS: ./comment-string.txt
+workflow:
+    rules:
+        -   if: $CI_COMMIT_BRANCH
+
+image: composer
+before_script:
+    - composer install
+stages:
+    - analyze
+    - warning_comments
+
+php-cs-fixer-analyze:
+    stage: analyze
+    script:
+        - PHP_CS_FIXER_IGNORE_ENV=1 ./vendor/bin/php-cs-fixer fix -v --dry-run --format gitlab --using-cache no > $PHPCS_REPORT_JSON_PATH
+    artifacts:
+        when: on_failure
+        paths:
+            - $PHPCS_REPORT_JSON_PATH
+        expire_in: 1 week
+
+print_analysis_comment:
+    when: on_failure
+    stage: warning_comments
+    rules:
+        -   if: $CI_MERGE_REQUEST_ID
+    script:
+        - php -f ./phpcs.php $PHPCS_REPORT_JSON_PATH $PARSED_COMMENTS
+        - |
+            curl \
+            --header "PRIVATE-TOKEN: $CI_ACCESS_TOKEN" \
+            --request POST \
+            --form "body=$(cat $PARSED_COMMENTS)" \
+            "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/merge_requests/${CI_MERGE_REQUEST_IID}/notes"
+    artifacts:
+        when: on_failure
+        paths:
+            - $PARSED_COMMENTS
+        expire_in: 1 week
