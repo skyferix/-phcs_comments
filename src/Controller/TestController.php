@@ -6,7 +6,7 @@ namespace App\Controller;
 
 class TestController
 {
-    public function __construct(private string $test)
+    public function __construct(string $test)
     {
         
     }
