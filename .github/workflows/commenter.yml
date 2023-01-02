@@ -1,5 +1,5 @@
 name: Php fixer commenter
-on: [ push, merge_request ]
+on: [ push, pull_request ]
 
 jobs:
     analyze:
@@ -7,6 +7,8 @@ jobs:
         steps:
             -   name: Analyze
                 run: PHP_CS_FIXER_IGNORE_ENV=1 ./vendor/bin/php-cs-fixer fix -v --dry-run --format gitlab --using-cache no > $PHPCS_REPORT_JSON_PATH
-        with:
-            path: $PHPCS_REPORT_JSON_PATH
-            retention-days: 7
+            -   name: Archive code analysis results
+                uses: actions/upload-artifact@v2
+                with:
+                    name: code-analysis-report
+                    path: $PHPCS_REPORT_JSON_PATH
