@@ -1,13 +1,11 @@
 name: "CI"
 
 on:
-    push:
     pull_request:
         paths:
             - "**.php"
             - "phpcs.xml"
             - ".github/workflows/phpcs.yml"
-
 jobs:
     phpcs:
         runs-on: ubuntu-latest
