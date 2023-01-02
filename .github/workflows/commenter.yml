@@ -1,0 +1,12 @@
+name: Php fixer commenter
+on: [ push, merge_request ]
+
+jobs:
+    analyze:
+        runs-on: composer
+        steps:
+            -   name: Analyze
+                run: PHP_CS_FIXER_IGNORE_ENV=1 ./vendor/bin/php-cs-fixer fix -v --dry-run --format gitlab --using-cache no > $PHPCS_REPORT_JSON_PATH
+        with:
+            path: $PHPCS_REPORT_JSON_PATH
+            retention-days: 7
